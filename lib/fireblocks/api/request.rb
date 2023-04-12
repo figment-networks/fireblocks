@@ -56,7 +56,7 @@ module Fireblocks
     def request_headers(body)
       {
         'X-API-Key' => @config.api_key,
-        'Authorization' => "Bearer #{token(body, @config)}",
+        'Authorization' => "Bearer #{token(body)}",
         'Content-Type' => 'application/json'
       }
     end
@@ -67,8 +67,8 @@ module Fireblocks
       ) { |http| http.request(request) }
     end
 
-    def token(body, config)
-      Token.call(body, uri, config)
+    def token(body)
+      Token.call(body, uri, @config)
     end
 
     def valid_response!(req_response)

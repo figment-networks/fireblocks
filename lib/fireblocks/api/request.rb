@@ -7,24 +7,25 @@ module Fireblocks
   class Request
     Error = Class.new(StandardError)
     class << self
-      def get(path:, body: '')
-        new(path: path).get(body)
+      def get(path:, body: '', config: nil)
+        new(path: path, config: config).get(body)
       end
 
-      def put(path:, body:)
-        new(path: path).put(body)
+      def put(path:, body:, config: nil)
+        new(path: path, config: config).put(body)
       end
 
-      def post(path:, body:)
-        new(path: path).post(body)
+      def post(path:, body:, config: nil)
+        new(path: path, config: config).post(body)
       end
     end
 
     attr_accessor :path, :uri
 
-    def initialize(path:)
+    def initialize(path:, config: nil)
       @path = path
-      @uri = URI("#{Fireblocks.configuration.base_url}#{path}")
+      @config = config || Fireblocks.configuration
+      @uri = URI("#{@config.base_url}#{path}")
     end
 
     def get(body)
@@ -54,7 +55,7 @@ module Fireblocks
 
     def request_headers(body)
       {
-        'X-API-Key' => Fireblocks.configuration.api_key,
+        'X-API-Key' => @config.api_key,
         'Authorization' => "Bearer #{token(body)}",
         'Content-Type' => 'application/json'
       }
@@ -67,7 +68,7 @@ module Fireblocks
     end
 
     def token(body)
-      Token.call(body, uri)
+      Token.call(body, uri, @config)
     end
 
     def valid_response!(req_response)
